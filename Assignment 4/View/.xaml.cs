@@ -40,6 +40,7 @@ namespace Assignment_4
             area.IsEnabled = false;
             languge.IsEnabled = false;
             purpose.IsEnabled = false;
+            kosher.IsEnabled = false;
             style.IsEnabled = false;
             numParticipants.IsEnabled = false;
             sportGame.IsEnabled = false;
@@ -166,6 +167,7 @@ namespace Assignment_4
             else if (chooseDomain.SelectedItem.Equals("דיור"))
             {
                 cleanHabits.IsEnabled = true;
+                kosher.IsEnabled = true;
                 quiet.IsEnabled = true;
                 hostingHabits.IsEnabled = true;
                 size.IsEnabled = true;
@@ -198,6 +200,7 @@ namespace Assignment_4
             else if (chooseDomain.SelectedItem.Equals("אחר"))
             {
                 addDomain.Visibility = System.Windows.Visibility.Visible;
+
             }
         }
 
@@ -212,21 +215,23 @@ namespace Assignment_4
                     {
                         MailMessage mail = new MailMessage();
                         SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-                        mail.From = new MailAddress("system@gmail.com");
-                        mail.To.Add("to_address");
+                        mail.From = new MailAddress(" roommatcheraviv@gmail.com");
+                        mail.To.Add("avivlitman21@gmail.com");
                         mail.Subject = "Add new Domain to the system";
                         mail.Body = "the user which owns the following username:" + _user + "wants to add the new domain" + addDomain.Text + " to the system.please approve or reject";
                         SmtpServer.Port = 587;
-                        SmtpServer.Credentials = new System.Net.NetworkCredential("username", "password");
+                        SmtpServer.Credentials = new System.Net.NetworkCredential("roomMatcher room", "yaelaviv123");
                         SmtpServer.EnableSsl = true;
-                        SmtpServer.Send(mail);
+                        //SmtpServer.Send(mail);
                         MessageBox.Show("תחום המודעה החדש נשלח לאישור מנהל המערכת");
+                        this.Close();
                         return;
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.ToString());
                     }
+                    return;
                 }
                 string query = "";
                 int number = _controller.getModel().countAds() + 1;
@@ -264,52 +269,77 @@ namespace Assignment_4
 
         private bool validateInputs()
         {
-            if ((!Regex.IsMatch(age.Text, "^[0-9]*$")) || ((Convert.ToInt32(age.Text) <= 1) && (Convert.ToInt32(age.Text) >= 100)))
-            {
-                MessageBox.Show("גיל לא תקין ");
-                return false;
-            }
+            if (!age.Text.Equals(""))
+                if ((!Regex.IsMatch(age.Text, "^[0-9]*$")) || ((Convert.ToInt32(age.Text) <= 1) && (Convert.ToInt32(age.Text) >= 100)))
+                {
+                    MessageBox.Show("גיל לא תקין ");
+                    return false;
+                }
+                else if (age.Text.Equals(""))
+                {
+                    MessageBox.Show("שדה חובה גיל ריק ");
+                    return false;
+                }
+
+
             if (languge.IsEnabled && !Regex.IsMatch(languge.Text, @"^[a-zA-Z]+$"))
             {
                 MessageBox.Show("שפה צריכה להכיל אותיות בלבד ");
                 return false;
             }
-            if (!Regex.IsMatch(numParticipants.Text, "^[0-9]*$"))
+            if (!numParticipants.Text.Equals(""))
             {
-                MessageBox.Show("מספר משתתפים בטיול לא תקין");
-                return false;
-            }
-            if (!Regex.IsMatch(numInGame.Text, "^[0-9]*$"))
-            {
-                MessageBox.Show("מספר משתתפים במשחק לא תקין ");
-                return false;
-            }
-            if (!Regex.IsMatch(size.Text, "^[0-9]*$"))
-            {
-                MessageBox.Show("גודל דירה לא תקין ");
-                return false;
-            }
-            if (!Regex.IsMatch(numOfRooms.Text, "^[0-9]*$"))
-            {
-                MessageBox.Show("מספר חדרים בדירה לא תקין ");
-                return false;
-            }
-            Regex rx = new Regex(@"^[-!#$%&'*+/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z{|}~])*@[a-zA-Z](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)+$");
-            string[] roomatesEmails = roomates.Text.Split(' ');
-            /*foreach (string email in roomatesEmails)
-            {
-                if (!rx.IsMatch(email))
+                if (!Regex.IsMatch(numParticipants.Text, "^[0-9]*$"))
                 {
-                    MessageBox.Show("כתובת האימייל של השותפים שהוזנה אינה בפורמט תקין");
+                    MessageBox.Show("מספר משתתפים בטיול לא תקין");
                     return false;
                 }
-                else if (!_controller.getModel().UserExist(email))
-                {
-                    MessageBox.Show("כתובת מייל השותפים לא קיימת במערכת");
-                    return false;
-                }
-            }*/
+            }
 
+            if (!numInGame.Text.Equals(""))
+            {
+                if (!Regex.IsMatch(numInGame.Text, "^[0-9]*$"))
+                {
+                    MessageBox.Show("מספר משתתפים במשחק לא תקין ");
+                    return false;
+                }
+            }
+
+            if (!size.Text.Equals(""))
+            {
+                if (!Regex.IsMatch(size.Text, "^[0-9]*$"))
+                {
+                    MessageBox.Show("גודל דירה לא תקין ");
+                    return false;
+                }
+            }
+            if (!numOfRooms.Text.Equals(""))
+            {
+                if (!Regex.IsMatch(numOfRooms.Text, "^[0-9]*$"))
+                {
+                    MessageBox.Show("מספר חדרים בדירה לא תקין ");
+                    return false;
+                }
+            }
+           
+            if (!roomates.Text.Equals(""))
+            {
+                Regex rx = new Regex(@"^[-!#$%&'*+/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z{|}~])*@[a-zA-Z](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)+$");
+                string[] roomatesEmails = roomates.Text.Split(' ');
+                foreach (string email in roomatesEmails)
+                {
+                    if (!rx.IsMatch(email))
+                    {
+                        MessageBox.Show("כתובת האימייל של השותפים שהוזנה אינה בפורמט תקין");
+                        return false;
+                    }
+                    else if (!_controller.getModel().UserExist(email))
+                    {
+                        MessageBox.Show("כתובת מייל השותפים לא קיימת במערכת");
+                        return false;
+                    }
+                }
+            }
             return true;
         }
 

@@ -26,6 +26,9 @@ namespace Assignment_4.View
         private string _user;
         private string[] selectedSearch;
         private string _queryFilter;
+        private int _counter;
+        private string domain;
+        private string pur,special,lev,favor,mus,clean,host;
 
         //consturctor
         //register bool= false
@@ -40,7 +43,10 @@ namespace Assignment_4.View
                 domainName.IsEnabled = false;
             }
             else
+            {
                 filter.IsEnabled = false;
+            }
+             
             _user = username;
             _controller = c;
         }
@@ -49,6 +55,7 @@ namespace Assignment_4.View
         public void EnableByDomain(string[] domains)
         {
             selectedSearch = domains;
+
             foreach (string s in domains)
             {
                 if (s.Equals("דיור"))
@@ -56,7 +63,6 @@ namespace Assignment_4.View
                     domainName.IsEnabled = false;
                     kosher.IsEnabled = true;
                     quiet.IsEnabled = false;
-                    age.IsEnabled = true; ;
                     hosting.IsEnabled = true;
                     cleaning.IsEnabled = true;
                     music.IsEnabled = false;
@@ -74,7 +80,6 @@ namespace Assignment_4.View
                     domainName.IsEnabled = false;
                     kosher.IsEnabled = false;
                     quiet.IsEnabled = true;
-                    age.IsEnabled = true; ;
                     hosting.IsEnabled = false;
                     cleaning.IsEnabled = false;
                     music.IsEnabled = true;
@@ -82,7 +87,7 @@ namespace Assignment_4.View
                     gameType.IsEnabled = false;
                     level.IsEnabled = false;
                     speciality.IsEnabled = false;
-                    location.IsEnabled = false;
+                    location.IsEnabled = true;
                     language.IsEnabled = false;
                     purpose.IsEnabled = false;
                     break;
@@ -92,7 +97,6 @@ namespace Assignment_4.View
                     domainName.IsEnabled = false;
                     kosher.IsEnabled = false;
                     quiet.IsEnabled = false;
-                    age.IsEnabled = false; ;
                     hosting.IsEnabled = false;
                     cleaning.IsEnabled = false;
                     music.IsEnabled = false;
@@ -110,7 +114,6 @@ namespace Assignment_4.View
                     domainName.IsEnabled = false;
                     kosher.IsEnabled = false;
                     quiet.IsEnabled = false;
-                    age.IsEnabled = false; ;
                     hosting.IsEnabled = false;
                     cleaning.IsEnabled = false;
                     music.IsEnabled = false;
@@ -119,7 +122,7 @@ namespace Assignment_4.View
                     level.IsEnabled = false;
                     speciality.IsEnabled = false;
                     location.IsEnabled = true;
-                    language.IsEnabled = true;
+                    language.IsEnabled = false;
                     purpose.IsEnabled = true;
                     break;
                 }
@@ -177,7 +180,6 @@ namespace Assignment_4.View
             domainName.SelectedItem = "";
             kosher.IsChecked = false;
             quiet.IsChecked = false;
-            age.Text = "";
             hosting.SelectedItem = "";
             cleaning.SelectedItem = "";
             music.SelectedItems.Clear();
@@ -193,105 +195,154 @@ namespace Assignment_4.View
         // if from registration so we save its preferences in the database
         private void save_Click(object sender, RoutedEventArgs e)
         {
-            string q = string.Format(domainName.SelectedItem.ToString(), hosting.ToString(), cleaning.ToString(), kosher.IsChecked.Value, music.SelectedItem.ToString(), favorite.SelectedItem.ToString(), quiet.IsChecked.Value, gameType.ToString(), level.SelectedItem.ToString(), speciality.SelectedItem.ToString(), state.Text, location.SelectedItem.ToString(), language.Text, purpose.SelectedItem.ToString(), age.Text);
-            string query = "INSERT into UserPrefferences(username,domainName,hostingHabits,cleanHabits,kosher,music,favoriteHobby,quietPerson,typeOfGame,levelOfPhysical,levelOfProfessionality,country,location,language,aimOfTrip) VALUES('" + q + "')";
-            _controller.getModel().addPrefenencesByDomain(query);
-            MessageBox.Show("העדפותייך בתחומים נשמרו בהצלחה במערכת !");
+            checkNullValues();
+            string q = string.Format(_user+"', '"+domain + "', '" + host + "', '" + clean + "', '" + kosher.IsChecked.Value + "', '" + mus + "', '" + favor + "', '" + quiet.IsChecked.Value + "', '" + gameType.Text + "', '" + lev + "', '" + special + "', '" + state.Text + "', '" +"null"+ "', '" + language.Text + "', '" + pur);
+            string query = "INSERT into userPreferences(userName,domainName,hostingHabits,cleanHabits,kosher,music,favoriteHobby,quietPerson,typeOfGame,levelOfPhysical,levelOfProfessionality,country,location,language,aimOfTrip) VALUES('" + q + "')";
+            if(!_controller.getModel().alreadyRegistered(_user))
+            {
+                _controller.getModel().addPrefenencesByDomain(query);
+                MessageBox.Show("העדפותייך בתחומים נשמרו בהצלחה במערכת !");
+            }
+            else
+                MessageBox.Show("המשתמש והעדפותיו כבר קיימים במערכת!");
             this.Close();
+        }
+
+        private void checkNullValues()
+        {
+            if (domainName.SelectedItems.Count == 0)
+                domain = "null";
+            if (purpose.SelectedItem == null)
+                pur = "null";
+            if (speciality.SelectedItem == null)
+                pur = "null";
+            if (level.SelectedItem == null)
+                lev = "null";
+            if (favorite.SelectedItems.Count == 0)
+                favor = "null";
+            if (music.SelectedItems.Count == 0)
+                mus = "null";
+            if (cleaning.SelectedItem == null)
+                clean = "null";
+            if (hosting.SelectedItem == null)
+                host = "null"; 
         }
 
         //search for ads by the preferences which the user entered
         public void filter_Click(object sender, RoutedEventArgs e)
         {
+            checkNullValues();
             StringBuilder filter = new StringBuilder();
-            
-            if(kosher.IsEnabled  && kosher.IsChecked.Value)
+            _counter = 0;
+            if (kosher.IsEnabled && kosher.IsChecked.Value)
             {
-                filter.Append("kosher = 'True' ");
+                _counter++;
+                filter.Append("isCosher = 'True' ");
             }
-            if(quiet.IsEnabled && quiet.IsChecked.Value)
+            if (quiet.IsEnabled && quiet.IsChecked.Value)
             {
-                if(filter.Length > 0)
+                _counter++;
+                if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
                 filter.Append("quietPerson = 'True' ");
             }
+
+
             if (hosting.IsEnabled && hosting.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
                 filter.Append(String.Format("hostingHabits = '{0}' ", hosting.SelectedItem));
             }
-            if(cleaning.IsEnabled && cleaning.SelectedIndex != -1)
+
+            if (cleaning.IsEnabled && cleaning.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
                 filter.Append(String.Format("cleanHabits = '{0}' ", cleaning.SelectedItem));
             }
-            if(music.IsEnabled && music.SelectedIndex != -1)
+
+
+            if (music.IsEnabled && music.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
                 string[] vals = ItemsToStringArray(music.SelectedItems);
 
-                filter.Append(String.Format("music in '({0})' ", String.Join(",", vals)));
+                filter.Append(String.Format("music in ({0}) ", String.Join(",", vals)));
             }
-            if(favorite.IsEnabled && favorite.SelectedIndex != -1)
+
+
+            if (favorite.IsEnabled && favorite.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
                 string[] vals = ItemsToStringArray(favorite.SelectedItems);
 
-                filter.Append(String.Format("favoriteHobby in '({0})' ", String.Join(",", vals)));
+                filter.Append(String.Format("typeOfDate in ({0}) ", String.Join(",", vals)));
             }
+
+
 
             //if(gameType.IsEnabled && gameType
 
-            if(level.IsEnabled && level.SelectedIndex != -1)
+            if (level.IsEnabled && level.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
-                filter.Append(String.Format("levelOfPhysical = '{0}' ", level.SelectedValue));
+                filter.Append(String.Format("LevalOfpisical = {0} ", level.SelectedValue));
             }
 
-            if(speciality.IsEnabled && speciality.SelectedIndex != -1)
+
+            if (speciality.IsEnabled && speciality.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
-                filter.Append(String.Format("levelOfProfessionality = '{0}' ", speciality.SelectedValue));
+                filter.Append(String.Format("LevelOfProffesionality = {0} ", speciality.SelectedValue));
             }
+
 
             //location.IsEnabled = true;
 
-            if(language.IsEnabled && language.Text != "")
+            if (language.IsEnabled && language.Text != "")
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
-                filter.Append(String.Format("language = '{0}' ", language.Text));
+                filter.Append(String.Format("language = {0} ", language.Text));
 
             }
-            if(purpose.IsEnabled && purpose.SelectedIndex != -1)
+
+            if (purpose.IsEnabled && purpose.SelectedIndex != -1)
             {
+                _counter++;
                 if (filter.Length > 0)
                 {
                     filter.Append("and ");
                 }
-                filter.Append(String.Format("aimOfTrip = '{0}' ", purpose.Text));
+                filter.Append(String.Format("purposeOfTrip = '{0}' ", purpose.Text));
             }
 
 
@@ -339,6 +390,9 @@ namespace Assignment_4.View
         {
             this.ShowDialog();
         }
+
+        public int Counter
+        { get { return this._counter; } }
 
         public String QueryFilter
         { get { return this._queryFilter; } }

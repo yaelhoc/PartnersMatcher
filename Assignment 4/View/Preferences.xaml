@@ -185,18 +185,6 @@
                   Margin="121,94,0,0"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Top" />
-        <Label Width="26"
-               Margin="294,227,0,0"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Top"
-               Content="גיל"
-               RenderTransformOrigin="1.154,0.561" />
-        <TextBox x:Name="age"
-                 Width="120"
-                 Height="24"
-                 Margin="121,229,0,0"
-                 HorizontalAlignment="Left"
-                 VerticalAlignment="Top" />
 
     </Grid>
 </Window>

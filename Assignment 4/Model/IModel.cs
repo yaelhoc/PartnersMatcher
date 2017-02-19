@@ -26,6 +26,8 @@ namespace Assignment_4.Model
 
         bool UserExist(string mail);
 
+        bool alreadyRegistered(string _user);
+
         void updateLastLogin(string user);
 
         int countAds();

@@ -42,8 +42,8 @@ namespace Assignment_4
             lblname.Content = "שלום אורח";
             buttonNewAd.IsEnabled = true;
             search.IsEnabled = true;
+            location.IsEnabled = true;
             _connectedUser = "";
-
         }
 
         //activating the login window
@@ -111,46 +111,135 @@ namespace Assignment_4
         //search ad in the system by location and domain
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-            DataTable dt;
+            DataTable dt=new DataTable();
             string query;
-            if (lblname.Content == null)
-                MessageBox.Show("משתמש לא מחובר לא יכול לבצע חיפוש במערכת");
-            if ((location.Text == "") && (domain == null))
-                MessageBox.Show("הכנס את כל השדות הדרושים לפני ביצוע חיפוש ");
-            if (domain == null && location.Text != "")
+            string dom;
+          
+            if (_connectedUser == "")// guest can only search by location and domain
+            {
+                if (domain.SelectedItems.Count == 0)
+                    dom = "('דיור','משחקי ספורט','דייטים','טיולים')";
+                else
+                {
+                    string[] domains = new string[domain.SelectedItems.Count];
+                    dom = "'";
+                    if (domain.SelectedItem != null)
+                    {
+                        for (int i = 0; i < domain.SelectedItems.Count; i++)
+                        {
+                            domains[i] = domain.SelectedItems[i].ToString();
+                        }
+                        dom = "'" + domains[0] + "'";
+                        for (int i = 1; i < domains.Length; i++)
+                        {
+                            dom += " , '" + domains[i] + "'";
+                        }
+                    }
+                }
+                if (location.Text != "")
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + dom + " and adStatus='active' and location = '" + location.Text + "'";
+                else
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + dom + " and adStatus='active'";
+                dt = _c.getModel().Search(query);
+                if (dt == null)
+                    MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
+                return;
+            }
+
+            if (domain.SelectedItems.Count == 0 && location.Text != "")
             {
                 query = "SELECT adNumber,adStatus,publishDate,location,domain,size,elevator,porch,numOfRooms,parking,garden,building,saferoom, isCosher,hostingHabits,cleanHabits,typeOfDate,paymentOnDate,purposeOfDate,music,quietPerson,typeOfGame,purposeOfGame,LevelOfProffesionality,LevalOfpisical,countryOfTrip,typeOfTrip,purposeOfTrip,purposeOfTrip,numOfParticipants,Owner FROM Ads Where adStatus='active' and location = '" + location.Text + "'";
                 dt = _c.getModel().Search(query);
+                if (dt == null)
+                    MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
             }
 
-            else
+            else 
             {
                 Preferences filters = new Preferences(_c, _connectedUser, true);
                 string[] domains = new string[domain.SelectedItems.Count];
-                
-                for (int i = 0; i < domain.SelectedItems.Count; i++)
+                dom = "'";
+                if (domain.SelectedItem != null)
                 {
-                    domains[i] = domain.SelectedItems[i].ToString();
+                    for (int i = 0; i < domain.SelectedItems.Count; i++)
+                    {
+                        domains[i] = domain.SelectedItems[i].ToString();
+                    }
+                    dom = "'" + domains[0] + "'";
+                    for (int i = 1; i < domains.Length; i++)
+                    {
+                        dom += " , '" + domains[i] + "'";
+                    }
                 }
-                string dom = "'" + domains[0] + "'";
-                for(int i = 1; i< domains.Length;i++)
-                {
-                    dom += " , '" + domains[i] + "'";
-                }
+
                 filters.EnableByDomain(domains);
                 filters.display();
                 string pref = filters.QueryFilter;
-                
+                int count = filters.Counter;
                 //filters.Close();
-                if (location.Text == "")
+                if(count==0)
                 {
-                    query = string.Format("SELECT adNumber,publishDate,location,domain FROM Ads Where domain in(" + dom + ")" + " and adStatus='active' and " + pref);
-                    dt = _c.getModel().Search(query);
-                }
+                    if (domain.SelectedItems.Count == 0)
+                    dom = "('דיור','משחקי ספורט','דייטים','טיולים')";
                 else
                 {
-                    query = "adNumber,publishDate,location,domain FROM Ads Where adStatus='active' and domain in(" + dom + ")"  + "and location='" + location.Text + "' and " + pref;
+                    string[] domai = new string[domain.SelectedItems.Count];
+                    dom = "'";
+                    if (domain.SelectedItem != null)
+                    {
+                        for (int i = 0; i < domain.SelectedItems.Count; i++)
+                        {
+                            domains[i] = domain.SelectedItems[i].ToString();
+                        }
+                        dom = "'" + domai[0] + "'";
+                        for (int i = 1; i < domai.Length; i++)
+                        {
+                            dom += " , '" + domai[i] + "'";
+                        }
+                    }
+                }
+                if (location.Text != "")
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + dom + " and adStatus='active' and location = '" + location.Text + "'";
+                else
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + dom + " and adStatus='active'";
+                dt = _c.getModel().Search(query);
+                if (dt == null)
+                    MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
+                return;
+                }
+                if (dom == "'" && location.Text == "" && count>0)
+                {
+                    string a = "('דיור','משחקי ספורט','דייטים','טיולים')";
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + a + "and adStatus='active'" + " and " + pref;
                     dt = _c.getModel().Search(query);
+                    if (dt == null)
+                        MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
+                }
+
+                else if (dom == "'" && location.Text != "" && count > 0)
+                {
+                    string a = "('דיור','משחקי ספורט','דייטים','טיולים')";
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in " + a + " and adStatus='active' and location = '" + location.Text + "'" + " and " + pref;
+                    dt = _c.getModel().Search(query);
+                    if (dt == null)
+                        MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
+                }
+
+                else if (location.Text == "" && count > 0)
+                {
+                    query = "SELECT adNumber,adStatus,publishDate,location,domain FROM Ads Where domain in(" + dom + ")" + " and adStatus='active' and " + pref;
+                    dt = _c.getModel().Search(query);
+                    if (dt == null)
+                        MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
+                }
+
+
+                else if ( count > 0)
+                {
+                    query = "SELECT adNumber,publishDate,location,domain FROM Ads Where adStatus='active' and domain in(" + dom + ")" + "and location='" + location.Text + "' and " + pref;
+                    dt = _c.getModel().Search(query);
+                    if (dt == null)
+                        MessageBox.Show("אין תוצאות מתאימות לחיפוש המבוקש !");
                 }
             }
             // מוסיף לטבלה עמודה נוספת דינאמית והיא מורכבת מכפתור הגשת בקשה ???
@@ -176,11 +265,13 @@ namespace Assignment_4
             lblname.Content = " שלום: אורח";
             buttonNewAd.IsEnabled = false;
             buttManagAd.IsEnabled = false;
-            location.IsEnabled = false;
+            location.IsEnabled = true;
             button_login.IsEnabled = true;
             button_reg.IsEnabled = true;
+            search.Content = "";
             domain.IsEnabled = true;
-            search.IsEnabled = false;
+            search.IsEnabled = true;
+
         }
     }
 

@@ -55,7 +55,7 @@ namespace Assignment_4.View
                     String[] vals = new String[listAuto.SelectedItems.Count];
                     for (int i = 0; i < listAuto.SelectedItems.Count; i++)
                     {
-                        vals[i] =listAuto.SelectedItems[i].ToString();
+                        vals[i] = listAuto.SelectedItems[i].ToString();
                     }
 
                     string au = String.Join(",", vals);
@@ -63,9 +63,11 @@ namespace Assignment_4.View
                         MessageBox.Show("ההרשמה למערכת התבצעה בהצלחה !");
                     else
                         MessageBox.Show("ההרשמה למערכת נכשלה");
+                    this.Close();
                 }
             }
         }
+
 
         private bool ValidateDetails()
         {
@@ -119,7 +121,15 @@ namespace Assignment_4.View
 
         public void display()
         {
-            this.Show();
+            this.ShowDialog();
+        }
+
+        private void RegWindow_Closing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        {
+            if (e.CloseReason == System.Windows.Forms.CloseReason.UserClosing)
+            {
+                this.Close();
+            }
         }
 
     }

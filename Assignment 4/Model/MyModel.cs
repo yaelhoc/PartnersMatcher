@@ -58,7 +58,10 @@ namespace Assignment_4.Model
             SqlDataAdapter sda = new SqlDataAdapter(query, con);
             DataTable dt = new DataTable();
             sda.Fill(dt);
-            return dt;
+            if (dt==null)
+                return null;
+            else
+                return dt; 
         }
 
         // function which add new ad to the system
@@ -73,8 +76,19 @@ namespace Assignment_4.Model
             con.Close();
             return true;
         }
+        // function which check if the user already saved in the system
+        public bool alreadyRegistered(string _user)
+        {
+            SqlDataAdapter sda = new SqlDataAdapter("SELECT Count(*) FROM UserPreferences WHERE userName='" + _user+"' ", con);
+            DataTable dt = new DataTable();
+            sda.Fill(dt);
+            if (dt.Rows[0][0].ToString() == "1")
+                return true;
+            else
+                return false;
+        }
 
-        //function which check if the user exist in the database by email adress
+        //function which check if the user exist in the database by email adress and his authority is roomate 
         public bool UserExist(string mail)
         {
             SqlDataAdapter sda = new SqlDataAdapter("SELECT Count(*) FROM Users WHERE EmailAdress='" + mail + "'and LoginStatus in ('שותף במודעה')", con);
@@ -149,7 +163,7 @@ namespace Assignment_4.Model
             cmd.CommandText = qur;
             cmd.Connection = con;
             con.Open();
-            cmd.ExecuteNonQuery();
+            cmd.ExecuteNonQuery(); 
             con.Close();
         }
 
